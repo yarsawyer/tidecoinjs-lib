@@ -2,4 +2,4 @@ TIDECOINJS-LIB
 
 Based on bitcoinjs-lib
 
-DEEP BETA
+DEEP BETA TEST
