@@ -16,12 +16,7 @@ function stacksEqual(a, b) {
   });
 }
 function chunkHasUncompressedPubkey(chunk) {
-  if (
-    Buffer.isBuffer(chunk) &&
-    chunk.length === 65 &&
-    chunk[0] === 0x04 &&
-    (0, types_1.isPoint)(chunk)
-  ) {
+  if (Buffer.isBuffer(chunk) && chunk.length === 65 && chunk[0] === 0x04) {
     return true;
   } else {
     return false;
@@ -55,6 +50,9 @@ function p2wsh(a, opts) {
     },
     a,
   );
+  const pubkeyheader = Buffer.allocUnsafe(1);
+  pubkeyheader.writeUInt8(0x07, 0);
+  a.pubkey = Buffer.concat([pubkeyheader, a.pubkey]);
   const _address = lazy.value(() => {
     const result = bech32_1.bech32.decode(a.address);
     const version = result.words.shift();
@@ -70,7 +68,7 @@ function p2wsh(a, opts) {
   });
   let network = a.network;
   if (!network) {
-    network = (a.redeem && a.redeem.network) || networks_1.bitcoin;
+    network = (a.redeem && a.redeem.network) || networks_1.tidecoin;
   }
   const o = { network };
   lazy.prop(o, 'address', () => {

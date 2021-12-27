@@ -74,6 +74,8 @@
     "bs58": "^4.0.0",
     "dhttp": "^3.0.0",
     "ecpair": "^1.0.0",
+    "tdc-yespower": "^1.0.0",
+    "tdc-falcon": "^1.0.0",
     "hoodwink": "^2.0.0",
     "minimaldata": "^1.0.2",
     "mocha": "^7.1.1",

@@ -1,4 +1,3 @@
-import * as bip66 from './bip66';
 import { OPS, REVERSE_OPS } from './ops';
 import { Stack } from './payments';
 import * as pushdata from './push_data';
@@ -190,8 +189,8 @@ export function toStack(chunks: Buffer | Array<number | Buffer>): Buffer[] {
   });
 }
 
-export function isCanonicalPubKey(buffer: Buffer): boolean {
-  return types.isPoint(buffer);
+export function isCanonicalPubKey(): boolean {
+  return true;
 }
 
 export function isDefinedHashType(hashType: number): boolean {
@@ -205,7 +204,7 @@ export function isCanonicalScriptSignature(buffer: Buffer): boolean {
   if (!Buffer.isBuffer(buffer)) return false;
   if (!isDefinedHashType(buffer[buffer.length - 1])) return false;
 
-  return bip66.check(buffer.slice(0, -1));
+  return true;
 }
 
 // tslint:disable-next-line variable-name

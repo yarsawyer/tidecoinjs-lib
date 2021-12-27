@@ -1,7 +1,7 @@
 import * as bcrypto from '../crypto';
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
+import { tidecoin as TIDECOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { isPoint, typeforce as typef } from '../types';
+import { typeforce as typef } from '../types';
 import { Payment, PaymentOpts } from './index';
 import * as lazy from './lazy';
 import { bech32 } from 'bech32';
@@ -24,13 +24,16 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
       input: typef.maybe(typef.BufferN(0)),
       network: typef.maybe(typef.Object),
       output: typef.maybe(typef.BufferN(22)),
-      pubkey: typef.maybe(isPoint),
       signature: typef.maybe(bscript.isCanonicalScriptSignature),
       witness: typef.maybe(typef.arrayOf(typef.Buffer)),
     },
     a,
   );
 
+  const pubkeyheader = Buffer.allocUnsafe(1);
+  pubkeyheader.writeUInt8(0x07, 0);
+  a.pubkey=Buffer.concat([pubkeyheader,a.pubkey!]);
+  
   const _address = lazy.value(() => {
     const result = bech32.decode(a.address!);
     const version = result.words.shift();
@@ -42,7 +45,7 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
     };
   });
 
-  const network = a.network || BITCOIN_NETWORK;
+  const network = a.network || TIDECOIN_NETWORK;
   const o: Payment = { name: 'p2wpkh', network };
 
   lazy.prop(o, 'address', () => {
@@ -116,7 +119,7 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
       if (hash.length > 0 && !hash.equals(pkh))
         throw new TypeError('Hash mismatch');
       else hash = pkh;
-      if (!isPoint(a.pubkey) || a.pubkey.length !== 33)
+      if (a.pubkey.length !== 898)
         throw new TypeError('Invalid pubkey for p2wpkh');
     }
 
@@ -124,7 +127,7 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
       if (a.witness.length !== 2) throw new TypeError('Witness is invalid');
       if (!bscript.isCanonicalScriptSignature(a.witness[0]))
         throw new TypeError('Witness has invalid signature');
-      if (!isPoint(a.witness[1]) || a.witness[1].length !== 33)
+      if (a.witness[1].length !== 33)
         throw new TypeError('Witness has invalid pubkey');
 
       if (a.signature && !a.signature.equals(a.witness[0]))

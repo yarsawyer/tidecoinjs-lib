@@ -36,9 +36,6 @@ function p2ms(a, opts) {
       m: types_1.typeforce.maybe(types_1.typeforce.Number),
       n: types_1.typeforce.maybe(types_1.typeforce.Number),
       output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-      pubkeys: types_1.typeforce.maybe(
-        types_1.typeforce.arrayOf(types_1.isPoint),
-      ),
       signatures: types_1.typeforce.maybe(
         types_1.typeforce.arrayOf(isAcceptableSignature),
       ),
@@ -46,7 +43,7 @@ function p2ms(a, opts) {
     },
     a,
   );
-  const network = a.network || networks_1.bitcoin;
+  const network = a.network || networks_1.tidecoin;
   const o = { network };
   let chunks = [];
   let decoded = false;
@@ -112,8 +109,6 @@ function p2ms(a, opts) {
       if (chunks[chunks.length - 1] !== OPS.OP_CHECKMULTISIG)
         throw new TypeError('Output is invalid');
       if (o.m <= 0 || o.n > 16 || o.m > o.n || o.n !== chunks.length - 3)
-        throw new TypeError('Output is invalid');
-      if (!o.pubkeys.every(x => (0, types_1.isPoint)(x)))
         throw new TypeError('Output is invalid');
       if (a.m !== undefined && a.m !== o.m) throw new TypeError('m mismatch');
       if (a.n !== undefined && a.n !== o.n) throw new TypeError('n mismatch');

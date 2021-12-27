@@ -19,7 +19,7 @@ const DEFAULT_OPTS = {
    * A bitcoinjs Network object. This is only used if you pass an `address`
    * parameter to addOutput. Otherwise it is not needed and can be left default.
    */
-  network: networks_1.bitcoin,
+  network: networks_1.tidecoin,
   /**
    * When extractTransaction is called, the fee rate is checked.
    * THIS IS NOT TO BE RELIED ON.
@@ -713,8 +713,8 @@ function isPaymentFactory(payment) {
     }
   };
 }
-const isP2MS = isPaymentFactory(payments.p2ms);
 const isP2PK = isPaymentFactory(payments.p2pk);
+const isP2MS = isPaymentFactory(payments.p2ms);
 const isP2PKH = isPaymentFactory(payments.p2pkh);
 const isP2WPKH = isPaymentFactory(payments.p2wpkh);
 const isP2WSHScript = isPaymentFactory(payments.p2wsh);
@@ -1328,16 +1328,10 @@ function redeemFromFinalWitnessScript(finalScript) {
   return lastItem;
 }
 function compressPubkey(pubkey) {
-  if (pubkey.length === 65) {
-    const parity = pubkey[64] & 1;
-    const newKey = pubkey.slice(0, 33);
-    newKey[0] = 2 | parity;
-    return newKey;
-  }
-  return pubkey.slice();
+  return pubkey;
 }
 function isPubkeyLike(buf) {
-  return buf.length === 33 && bscript.isCanonicalPubKey(buf);
+  return buf.length === 897;
 }
 function isSigLike(buf) {
   return bscript.isCanonicalScriptSignature(buf);

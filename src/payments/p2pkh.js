@@ -20,12 +20,16 @@ function p2pkh(a, opts) {
       address: types_1.typeforce.maybe(types_1.typeforce.String),
       hash: types_1.typeforce.maybe(types_1.typeforce.BufferN(20)),
       output: types_1.typeforce.maybe(types_1.typeforce.BufferN(25)),
-      pubkey: types_1.typeforce.maybe(types_1.isPoint),
       signature: types_1.typeforce.maybe(bscript.isCanonicalScriptSignature),
       input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
     },
     a,
   );
+  const pubkeyheader = Buffer.allocUnsafe(1);
+  pubkeyheader.writeUInt8(0x07, 0);
+  //pubcopy=Buffer.allocUnsafe(a.pubkey.byteLength);
+  //pubcopy.copy(a.pubkey);
+  a.pubkey = Buffer.concat([pubkeyheader, a.pubkey]);
   const _address = lazy.value(() => {
     const payload = bs58check.decode(a.address);
     const version = payload.readUInt8(0);
@@ -35,7 +39,7 @@ function p2pkh(a, opts) {
   const _chunks = lazy.value(() => {
     return bscript.decompile(a.input);
   });
-  const network = a.network || networks_1.bitcoin;
+  const network = a.network || networks_1.tidecoin;
   const o = { name: 'p2pkh', network };
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;
@@ -116,8 +120,6 @@ function p2pkh(a, opts) {
       if (chunks.length !== 2) throw new TypeError('Input is invalid');
       if (!bscript.isCanonicalScriptSignature(chunks[0]))
         throw new TypeError('Input has invalid signature');
-      if (!(0, types_1.isPoint)(chunks[1]))
-        throw new TypeError('Input has invalid pubkey');
       if (a.signature && !a.signature.equals(chunks[0]))
         throw new TypeError('Signature mismatch');
       if (a.pubkey && !a.pubkey.equals(chunks[1]))

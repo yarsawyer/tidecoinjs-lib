@@ -1,7 +1,7 @@
 import * as bcrypto from '../crypto';
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
+import { tidecoin as TIDECOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { isPoint, typeforce as typef } from '../types';
+import { typeforce as typef } from '../types';
 import { Payment, PaymentOpts, StackElement, StackFunction } from './index';
 import * as lazy from './lazy';
 import { bech32 } from 'bech32';
@@ -21,8 +21,7 @@ function chunkHasUncompressedPubkey(chunk: StackElement): boolean {
   if (
     Buffer.isBuffer(chunk) &&
     chunk.length === 65 &&
-    chunk[0] === 0x04 &&
-    isPoint(chunk)
+    chunk[0] === 0x04
   ) {
     return true;
   } else {
@@ -58,6 +57,11 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
     a,
   );
 
+  const pubkeyheader = Buffer.allocUnsafe(1);
+  pubkeyheader.writeUInt8(0x07, 0);
+  a.pubkey=Buffer.concat([pubkeyheader,a.pubkey!]);
+  
+
   const _address = lazy.value(() => {
     const result = bech32.decode(a.address!);
     const version = result.words.shift();
@@ -74,7 +78,7 @@ export function p2wsh(a: Payment, opts?: PaymentOpts): Payment {
 
   let network = a.network;
   if (!network) {
-    network = (a.redeem && a.redeem.network) || BITCOIN_NETWORK;
+    network = (a.redeem && a.redeem.network) || TIDECOIN_NETWORK;
   }
 
   const o: Payment = { network };

@@ -1,6 +1,6 @@
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
+import { tidecoin as TIDECOIN_NETWORK } from '../networks';
+import { typeforce as typef } from '../types';
 import * as bscript from '../script';
-import { isPoint, typeforce as typef } from '../types';
 import { Payment, PaymentOpts, StackFunction } from './index';
 import * as lazy from './lazy';
 const OPS = bscript.OPS;
@@ -16,7 +16,6 @@ export function p2pk(a: Payment, opts?: PaymentOpts): Payment {
     {
       network: typef.maybe(typef.Object),
       output: typef.maybe(typef.Buffer),
-      pubkey: typef.maybe(isPoint),
 
       signature: typef.maybe(bscript.isCanonicalScriptSignature),
       input: typef.maybe(typef.Buffer),
@@ -24,11 +23,15 @@ export function p2pk(a: Payment, opts?: PaymentOpts): Payment {
     a,
   );
 
+  const pubkeyheader = Buffer.allocUnsafe(1);
+  pubkeyheader.writeUInt8(0x07, 0);
+  a.pubkey=Buffer.concat([pubkeyheader,a.pubkey!]);
+
   const _chunks = lazy.value(() => {
     return bscript.decompile(a.input!);
   }) as StackFunction;
 
-  const network = a.network || BITCOIN_NETWORK;
+  const network = a.network || TIDECOIN_NETWORK;
   const o: Payment = { name: 'p2pk', network };
 
   lazy.prop(o, 'output', () => {
@@ -57,7 +60,6 @@ export function p2pk(a: Payment, opts?: PaymentOpts): Payment {
     if (a.output) {
       if (a.output[a.output.length - 1] !== OPS.OP_CHECKSIG)
         throw new TypeError('Output is invalid');
-      if (!isPoint(o.pubkey)) throw new TypeError('Output pubkey is invalid');
       if (a.pubkey && !a.pubkey.equals(o.pubkey!))
         throw new TypeError('Pubkey mismatch');
     }

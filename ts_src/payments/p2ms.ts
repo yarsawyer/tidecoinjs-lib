@@ -1,6 +1,6 @@
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
+import { tidecoin as TIDECOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { isPoint, typeforce as typef } from '../types';
+import { typeforce as typef } from '../types';
 import { Payment, PaymentOpts, Stack } from './index';
 import * as lazy from './lazy';
 const OPS = bscript.OPS;
@@ -40,7 +40,6 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
       m: typef.maybe(typef.Number),
       n: typef.maybe(typef.Number),
       output: typef.maybe(typef.Buffer),
-      pubkeys: typef.maybe(typef.arrayOf(isPoint)),
 
       signatures: typef.maybe(typef.arrayOf(isAcceptableSignature)),
       input: typef.maybe(typef.Buffer),
@@ -48,7 +47,7 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
     a,
   );
 
-  const network = a.network || BITCOIN_NETWORK;
+  const network = a.network || TIDECOIN_NETWORK;
   const o: Payment = { network };
 
   let chunks: Stack = [];
@@ -117,8 +116,6 @@ export function p2ms(a: Payment, opts?: PaymentOpts): Payment {
         throw new TypeError('Output is invalid');
 
       if (o.m! <= 0 || o.n! > 16 || o.m! > o.n! || o.n !== chunks.length - 3)
-        throw new TypeError('Output is invalid');
-      if (!o.pubkeys!.every(x => isPoint(x)))
         throw new TypeError('Output is invalid');
 
       if (a.m !== undefined && a.m !== o.m) throw new TypeError('m mismatch');

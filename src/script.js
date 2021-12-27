@@ -1,7 +1,6 @@
 'use strict';
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.signature = exports.number = exports.isCanonicalScriptSignature = exports.isDefinedHashType = exports.isCanonicalPubKey = exports.toStack = exports.fromASM = exports.toASM = exports.decompile = exports.compile = exports.isPushOnly = exports.OPS = void 0;
-const bip66 = require('./bip66');
 const ops_1 = require('./ops');
 Object.defineProperty(exports, 'OPS', {
   enumerable: true,
@@ -161,8 +160,8 @@ function toStack(chunks) {
   });
 }
 exports.toStack = toStack;
-function isCanonicalPubKey(buffer) {
-  return types.isPoint(buffer);
+function isCanonicalPubKey() {
+  return true;
 }
 exports.isCanonicalPubKey = isCanonicalPubKey;
 function isDefinedHashType(hashType) {
@@ -174,7 +173,7 @@ exports.isDefinedHashType = isDefinedHashType;
 function isCanonicalScriptSignature(buffer) {
   if (!Buffer.isBuffer(buffer)) return false;
   if (!isDefinedHashType(buffer[buffer.length - 1])) return false;
-  return bip66.check(buffer.slice(0, -1));
+  return true;
 }
 exports.isCanonicalScriptSignature = isCanonicalScriptSignature;
 // tslint:disable-next-line variable-name

@@ -16,7 +16,7 @@ import { checkForInput, checkForOutput } from 'bip174/src/lib/utils';
 import { fromOutputScript, toOutputScript } from './address';
 import { cloneBuffer, reverseBuffer } from './bufferutils';
 import { hash160 } from './crypto';
-import { bitcoin as btcNetwork, Network } from './networks';
+import { tidecoin as tdcNetwork, Network } from './networks';
 import * as payments from './payments';
 import * as bscript from './script';
 import { Output, Transaction } from './transaction';
@@ -55,7 +55,7 @@ const DEFAULT_OPTS: PsbtOpts = {
    * A bitcoinjs Network object. This is only used if you pass an `address`
    * parameter to addOutput. Otherwise it is not needed and can be left default.
    */
-  network: btcNetwork,
+  network: tdcNetwork,
   /**
    * When extractTransaction is called, the fee rate is checked.
    * THIS IS NOT TO BE RELIED ON.
@@ -949,8 +949,8 @@ function isPaymentFactory(payment: any): (script: Buffer) => boolean {
     }
   };
 }
-const isP2MS = isPaymentFactory(payments.p2ms);
 const isP2PK = isPaymentFactory(payments.p2pk);
+const isP2MS = isPaymentFactory(payments.p2ms);
 const isP2PKH = isPaymentFactory(payments.p2pkh);
 const isP2WPKH = isPaymentFactory(payments.p2wpkh);
 const isP2WSHScript = isPaymentFactory(payments.p2wsh);
@@ -1735,17 +1735,11 @@ function redeemFromFinalWitnessScript(
 }
 
 function compressPubkey(pubkey: Buffer): Buffer {
-  if (pubkey.length === 65) {
-    const parity = pubkey[64] & 1;
-    const newKey = pubkey.slice(0, 33);
-    newKey[0] = 2 | parity;
-    return newKey;
-  }
-  return pubkey.slice();
+  return pubkey;
 }
 
 function isPubkeyLike(buf: Buffer): boolean {
-  return buf.length === 33 && bscript.isCanonicalPubKey(buf);
+  return buf.length === 897;
 }
 
 function isSigLike(buf: Buffer): boolean {

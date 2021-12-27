@@ -2,8 +2,8 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.p2pk = void 0;
 const networks_1 = require('../networks');
-const bscript = require('../script');
 const types_1 = require('../types');
+const bscript = require('../script');
 const lazy = require('./lazy');
 const OPS = bscript.OPS;
 // input: {signature}
@@ -16,16 +16,18 @@ function p2pk(a, opts) {
     {
       network: types_1.typeforce.maybe(types_1.typeforce.Object),
       output: types_1.typeforce.maybe(types_1.typeforce.Buffer),
-      pubkey: types_1.typeforce.maybe(types_1.isPoint),
       signature: types_1.typeforce.maybe(bscript.isCanonicalScriptSignature),
       input: types_1.typeforce.maybe(types_1.typeforce.Buffer),
     },
     a,
   );
+  const pubkeyheader = Buffer.allocUnsafe(1);
+  pubkeyheader.writeUInt8(0x07, 0);
+  a.pubkey = Buffer.concat([pubkeyheader, a.pubkey]);
   const _chunks = lazy.value(() => {
     return bscript.decompile(a.input);
   });
-  const network = a.network || networks_1.bitcoin;
+  const network = a.network || networks_1.tidecoin;
   const o = { name: 'p2pk', network };
   lazy.prop(o, 'output', () => {
     if (!a.pubkey) return;
@@ -52,8 +54,6 @@ function p2pk(a, opts) {
     if (a.output) {
       if (a.output[a.output.length - 1] !== OPS.OP_CHECKSIG)
         throw new TypeError('Output is invalid');
-      if (!(0, types_1.isPoint)(o.pubkey))
-        throw new TypeError('Output pubkey is invalid');
       if (a.pubkey && !a.pubkey.equals(o.pubkey))
         throw new TypeError('Pubkey mismatch');
     }

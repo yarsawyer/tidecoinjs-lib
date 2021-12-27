@@ -1,7 +1,7 @@
 import * as bcrypto from '../crypto';
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
+import { tidecoin as TIDECOIN_NETWORK } from '../networks';
 import * as bscript from '../script';
-import { isPoint, typeforce as typef } from '../types';
+import { typeforce as typef } from '../types';
 import { Payment, PaymentOpts, StackFunction } from './index';
 import * as lazy from './lazy';
 import * as bs58check from 'bs58check';
@@ -21,12 +21,17 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
       hash: typef.maybe(typef.BufferN(20)),
       output: typef.maybe(typef.BufferN(25)),
 
-      pubkey: typef.maybe(isPoint),
       signature: typef.maybe(bscript.isCanonicalScriptSignature),
       input: typef.maybe(typef.Buffer),
     },
     a,
   );
+
+  const pubkeyheader = Buffer.allocUnsafe(1);
+  pubkeyheader.writeUInt8(0x07, 0);
+  a.pubkey=Buffer.concat([pubkeyheader,a.pubkey!]);
+
+
 
   const _address = lazy.value(() => {
     const payload = bs58check.decode(a.address!);
@@ -38,7 +43,7 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
     return bscript.decompile(a.input!);
   }) as StackFunction;
 
-  const network = a.network || BITCOIN_NETWORK;
+  const network = a.network || TIDECOIN_NETWORK;
   const o: Payment = { name: 'p2pkh', network };
 
   lazy.prop(o, 'address', () => {
@@ -127,7 +132,6 @@ export function p2pkh(a: Payment, opts?: PaymentOpts): Payment {
       if (chunks.length !== 2) throw new TypeError('Input is invalid');
       if (!bscript.isCanonicalScriptSignature(chunks[0] as Buffer))
         throw new TypeError('Input has invalid signature');
-      if (!isPoint(chunks[1])) throw new TypeError('Input has invalid pubkey');
 
       if (a.signature && !a.signature.equals(chunks[0] as Buffer))
         throw new TypeError('Signature mismatch');

@@ -86,7 +86,7 @@ function toBech32(data, version, prefix) {
 exports.toBech32 = toBech32;
 function fromOutputScript(output, network) {
   // TODO: Network
-  network = network || networks.bitcoin;
+  network = network || networks.tidecoin;
   try {
     return payments.p2pkh({ output, network }).address;
   } catch (e) {}
@@ -106,7 +106,7 @@ function fromOutputScript(output, network) {
 }
 exports.fromOutputScript = fromOutputScript;
 function toOutputScript(address, network) {
-  network = network || networks.bitcoin;
+  network = network || networks.tidecoin;
   let decodeBase58;
   let decodeBech32;
   try {

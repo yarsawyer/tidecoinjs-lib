@@ -23,7 +23,6 @@ function p2wpkh(a, opts) {
       input: types_1.typeforce.maybe(types_1.typeforce.BufferN(0)),
       network: types_1.typeforce.maybe(types_1.typeforce.Object),
       output: types_1.typeforce.maybe(types_1.typeforce.BufferN(22)),
-      pubkey: types_1.typeforce.maybe(types_1.isPoint),
       signature: types_1.typeforce.maybe(bscript.isCanonicalScriptSignature),
       witness: types_1.typeforce.maybe(
         types_1.typeforce.arrayOf(types_1.typeforce.Buffer),
@@ -31,6 +30,9 @@ function p2wpkh(a, opts) {
     },
     a,
   );
+  const pubkeyheader = Buffer.allocUnsafe(1);
+  pubkeyheader.writeUInt8(0x07, 0);
+  a.pubkey = Buffer.concat([pubkeyheader, a.pubkey]);
   const _address = lazy.value(() => {
     const result = bech32_1.bech32.decode(a.address);
     const version = result.words.shift();
@@ -41,7 +43,7 @@ function p2wpkh(a, opts) {
       data: Buffer.from(data),
     };
   });
-  const network = a.network || networks_1.bitcoin;
+  const network = a.network || networks_1.tidecoin;
   const o = { name: 'p2wpkh', network };
   lazy.prop(o, 'address', () => {
     if (!o.hash) return;
@@ -109,14 +111,14 @@ function p2wpkh(a, opts) {
       if (hash.length > 0 && !hash.equals(pkh))
         throw new TypeError('Hash mismatch');
       else hash = pkh;
-      if (!(0, types_1.isPoint)(a.pubkey) || a.pubkey.length !== 33)
+      if (a.pubkey.length !== 898)
         throw new TypeError('Invalid pubkey for p2wpkh');
     }
     if (a.witness) {
       if (a.witness.length !== 2) throw new TypeError('Witness is invalid');
       if (!bscript.isCanonicalScriptSignature(a.witness[0]))
         throw new TypeError('Witness has invalid signature');
-      if (!(0, types_1.isPoint)(a.witness[1]) || a.witness[1].length !== 33)
+      if (a.witness[1].length !== 33)
         throw new TypeError('Witness has invalid pubkey');
       if (a.signature && !a.signature.equals(a.witness[0]))
         throw new TypeError('Signature mismatch');
