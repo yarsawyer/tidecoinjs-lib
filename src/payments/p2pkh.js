@@ -27,8 +27,6 @@ function p2pkh(a, opts) {
   );
   const pubkeyheader = Buffer.allocUnsafe(1);
   pubkeyheader.writeUInt8(0x07, 0);
-  //pubcopy=Buffer.allocUnsafe(a.pubkey.byteLength);
-  //pubcopy.copy(a.pubkey);
   a.pubkey = Buffer.concat([pubkeyheader, a.pubkey]);
   const _address = lazy.value(() => {
     const payload = bs58check.decode(a.address);

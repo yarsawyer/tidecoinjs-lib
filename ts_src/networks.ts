@@ -15,7 +15,7 @@ interface Bip32 {
 }
 
 export const tidecoin: Network = {
-      messagePrefix: '\x18Tidecoin Signed Message:\n',
+      messagePrefix: '\x19Tidecoin Signed Message:\n',
       bech32: 'tbc',
       bip32: {
         public: 0x0768acde,
